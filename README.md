@@ -70,7 +70,7 @@ test("Renders main element", () => {
 - 간단하게 main 엘리먼트가 있는지 확인하는 테스트 코드를 작성.
 
 ***Reference
-[Adding Jest with TypeScript Support to a Vite Application](Adding Jest with TypeScript Support to a Vite Application)
+[Adding Jest with TypeScript Support to a Vite Application](`https://egghead.io/lessons/jest-adding-jest-with-typescript-support-to-a-vite-application`)
 ```
 
 ## yarn cra jest 사용법
