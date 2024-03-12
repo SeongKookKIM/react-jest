@@ -1,70 +1,69 @@
-# Getting Started with Create React App
+### React 에서 jest 테스트 코드 사용하기
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+`yarn react사용`
 
-## Available Scripts
+```js
+//Hello.js
+import React from "react";
 
-In the project directory, you can run:
+function Hello({ user }) {
+  return user && user.name ? (
+    <h1>Hello!{user.name}</h1>
+  ) : (
+    <button>Login</button>
+  );
+}
 
-### `yarn start`
+export default Hello;
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+//Hello.test.js
+import { render, screen } from "@testing-library/react";
+import Hello from "./Hello";
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+const user = {
+  name: "Tom",
+  age: 30,
+};
 
-### `yarn test`
+const user2 = {
+  age: 20,
+};
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+test("snapshot: name 있음", () => {
+  const el = render(<Hello user={user} />);
+  expect(el).toMatchSnapshot();
+});
+test("snapshot: name 없음", () => {
+  const el = render(<Hello />);
+  expect(el).toMatchSnapshot();
+});
 
-### `yarn build`
+test("Hello 라는 글자가 포함되는가?", () => {
+  render(<Hello user={user} />);
+  const helloEl = screen.getByText(/Hello/i);
+  expect(helloEl).toBeInTheDocument();
+});
+->snap샷 생성 후 디버깅 및 오류 확인
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+***`변하는 시간값 테스트`
+//Timer.js
+function Timer() {
+  const now = Date.now();
+  const sec = new Date(now).getSeconds();
+  return <p>현재 {sec}초 입니다.</p>;
+}
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+export default Timer;
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+//Time.test.js
+import { render, screen } from "@testing-library/react";
+import Timer from "./Timer";
 
-### `yarn eject`
+test("초 표시", () => {
+  Date.now = jest.fn(() => 123456789);
+  const el = render(<Timer />);
+  expect(el).toMatchSnapshot();
+});
+->mock함수를 사용, 시간을 고정해서 오류를 방지
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
