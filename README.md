@@ -1,4 +1,4 @@
-# React 에서 jest 테스트 코드 사용하기
+# React 에서 jest 테스트 코드 사용하기 [jest-dom](https://github.com/testing-library/jest-dom?tab=readme-ov-file)
 
 ### vite react일 경우 jest 설치
 
