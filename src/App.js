@@ -1,6 +1,9 @@
-import "./App.css";
 import Hello from "./Hello";
 import Timer from "./Timer";
+
+import "./App.css";
+import logo from "./logo.svg";
+import MyPage from "./MyPage";
 
 const user = {
   // name: "Mike",
@@ -11,7 +14,9 @@ function App() {
   return (
     <div className="App">
       {/* <Hello user={user} /> */}
-      <Timer />
+      {/* <Timer /> */}
+      <MyPage user={{ name: "Kim" }} />
+      <img src={logo} alt="logo" />
     </div>
   );
 }

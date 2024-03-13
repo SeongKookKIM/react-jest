@@ -77,6 +77,38 @@ test("Renders main element", () => {
 
 -cra는 jest가 자동 설치
 
+## `Mathcher함수 모음`
+
+---
+
+- Custom matchers
+  - `toBeDisabled`: 대상 요소가 비활성화(disabled)되었는지 확인합니다.
+  - `toBeEnabled`: 대상 요소가 활성화(enabled)되었는지 확인합니다.
+  - `toBeEmptyDOMElement`: 대상 요소가 비어 있는지 확인합니다.
+  - `toBeInTheDocument`: 대상 요소가 DOM에 존재하는지 확인합니다.
+  - `toBeInvalid`: 대상 요소가 유효하지 않은 상태인지 확인합니다.
+  - `toBeRequired`: 대상 요소가 필수(required)인지 확인합니다.
+  - `toBeValid`: 대상 요소가 유효한 상태인지 확인합니다.
+  - `toBeVisible`: 대상 요소가 시각적으로 보이는지 확인합니다.
+  - `toContainElement`: 대상 요소 안에 특정 요소가 포함되어 있는지 확인합니다.
+  - `toContainHTML`: 대상 요소의 HTML 내용에 특정 문자열이 포함되어 있는지 확인합니다.
+  - `toHaveAccessibleDescription`: 대상 요소가 비활성화(disabled)되었는지 확인합니다.
+  - `toBeDisabled`: 대상 요소가 접근성 설명(accessible description)을 가지고 있는지 확인합니다.
+  - `toHaveAccessibleErrorMessage`: 대상 요소의 접근성 오류 메시지가 기대한 값을 가지고 있는지 확인합니다.
+  - `toHaveAccessibleName`: 대상 요소가 접근성 이름(accessible name)을 가지고 있는지 확인합니다.
+  - `toHaveAttribute`: 대상 요소가 특정 속성을 가지고 있는지 확인합니다.
+  - `toHaveClass`: 대상 요소가 특정 클래스를 가지고 있는지 확인합니다.
+  - `toHaveFocus`: 대상 요소가 포커스를 가지고 있는지 확인합니다.
+  - `toHaveFormValues`: 대상 요소가 특정 폼 값들을 가지고 있는지 확인합니다.
+  - `toHaveStyle`: 대상 요소가 특정 스타일 속성을 가지고 있는지 확인합니다.
+  - `toHaveTextContent`: 대상 요소의 텍스트 내용이 기대한 값을 가지고 있는지 확인합니다.
+  - `toHaveValue`: 대상 요소의 값이 기대한 값을 가지고 있는지 확인합니다.
+  - `toHaveDisplayValue`: 대상 요소의 표시 값이 기대한 값을 가지고 있는지 확인합니다.
+  - `toBeChecked`: 대상 체크박스나 라디오 버튼이 선택된 상태인지 확인합니다.
+  - `toBePartiallyChecked`: 대상 체크박스가 부분적으로 선택된 상태인지 확인합니다.
+  - `toHaveRole`: 대상 요소가 특정 역할(role)을 가지고 있는지 확인합니다.
+  - `toHaveErrorMessage`: 대상 요소의 오류 메시지가 기대한 값을 가지고 있는지 확인합니다.
+
 ```js
 //Hello.js
 import React from "react";
@@ -141,4 +173,119 @@ test("초 표시", () => {
 });
 ->mock함수를 사용, 시간을 고정해서 오류를 방지
 
+```
+
+`예시1`
+
+```js
+import { render, screen } from "@testing-library/react";
+import App from "./App";
+
+test("로고 이미지가 잘 나온다.", () => {
+  render(<App />);
+  const logoEl = screen.getByAltText("logo");
+  expect(logoEl).toBeInTheDocument();
+});
+-> 이미지 확인 법
+```
+
+`예시2`
+
+```js
+// MyPage.js
+import React from "react";
+
+function MyPage({ user }) {
+  return (
+    <div>
+      {user && user.name ? (
+        <h1>{user.name}님 환영합니다.</h1>
+      ) : (
+        <h1>
+          로그인을 해주세요.<button>로그인</button>
+        </h1>
+      )}
+    </div>
+  );
+}
+
+export default MyPage;
+
+//MyPage.test.js
+import { render, screen } from "@testing-library/react";
+import MyPage from "./MyPage";
+
+test("유저가 없으면 로그인 문구와 버튼을 보여준다.", () => {
+  render(<MyPage />);
+  const txtEl = screen.getByText(/로그인을 해주세요/);
+  const btnEl = screen.getByRole("button");
+  expect(txtEl).toBeInTheDocument();
+  expect(btnEl).toBeInTheDocument();
+  expect(btnEl).toHaveTextContent("로그인");
+});
+
+test("유저가 없으면 로그인 문구와 버튼을 보여준다.", () => {
+  render(<MyPage user={{ name: "kim" }} />);
+  const txtEl = screen.getByText(/kim님 환영합니다/);
+  expect(txtEl).toBeInTheDocument();
+});
+test("유저가 name이 없으면 로그인 문구와 버튼을 보여준다.", () => {
+  render(<MyPage user="Park" />);
+  const txtEl = screen.getByText(/로그인을 해주세요/);
+  const btnEl = screen.getByRole("button");
+  expect(txtEl).toBeInTheDocument();
+  expect(btnEl).toBeInTheDocument();
+  expect(btnEl).toHaveTextContent("로그인");
+});
+```
+
+`예시3`
+
+```js
+//JoinButton.js
+import React from "react";
+
+function JoinButton({ age }) {
+  return (
+    <>
+      <button disabled={age < 19}>가입</button>
+      {age < 19 ? (
+        <h3 style={{ color: "red" }}>성인만 가입할 수 있습니다.</h3>
+      ) : (
+        <h3 style={{ color: "blue" }}>가입할 수 있습니다.</h3>
+      )}
+    </>
+  );
+}
+
+export default JoinButton;
+
+//JoinButton.test.js
+import { render, screen } from "@testing-library/react";
+import JoinButton from "./JoinButton";
+
+test("19세 이하면 버튼을 클릭할 수 없다. 안내문구는 빨강색이다.", () => {
+  render(<JoinButton age={10} />);
+  const btnEl = screen.getByRole("button");
+  const txtEl = screen.getByRole("heading");
+  expect(btnEl).toBeInTheDocument();
+  expect(txtEl).toBeInTheDocument();
+  expect(btnEl).toBeDisabled();
+  expect(txtEl).toHaveStyle({
+    color: "red",
+  });
+});
+
+test("성인은 클릭할 수 있다. 안내문구는 파란색이다.", () => {
+  render(<JoinButton age={20} />);
+  const btnEl = screen.getByRole("button");
+  const txtEl = screen.getByRole("heading");
+  expect(btnEl).toBeInTheDocument();
+  expect(txtEl).toBeInTheDocument();
+  expect(btnEl).toBeEnabled();
+  expect(txtEl).toHaveStyle({
+    color: "blue",
+  });
+});
+->Style까지 확인
 ```
