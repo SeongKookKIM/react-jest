@@ -237,6 +237,8 @@ test("유저가 name이 없으면 로그인 문구와 버튼을 보여준다.", 
   expect(btnEl).toBeInTheDocument();
   expect(btnEl).toHaveTextContent("로그인");
 });
+-> getByText('로그인을 해주세요.') 텍스트로 변환시 정확히 사용해야함 `/로그인/` 정규식 사용시 문제 없음
+->getByRole() `h1~h6: heading``button:button``a:link``checkbox:checkbox``radio:radio``select:combobox`
 ```
 
 `예시3`
@@ -288,4 +290,119 @@ test("성인은 클릭할 수 있다. 안내문구는 파란색이다.", () => {
   });
 });
 ->Style까지 확인
+```
+
+#### 요소를 찾는 쿼리
+
+```js
+//MyPage.js
+import React from "react";
+
+function MyPage({ user }) {
+  return (
+    <div>
+      <h1>hello</h1>
+      <h2>world</h2>
+    </div>
+  );
+}
+...
+
+//MyPage.test.js
+import { render, screen } from "@testing-library/react";
+import MyPage from "./MyPage";
+
+test("제목 확인", () => {
+  render(<MyPage />);
+  const titleEl = screen.getByRole("heading", { level: 1 });
+  expect(titleEl).toBeInTheDocument();
+});
+-> `heading`이 중복 될 경우 오류 {level}사용하여 찾기
+
+and
+
+function MyPage({ user }) {
+  return (
+    <div>
+      <div>
+        <label htmlFor="usename">이름</label>
+        <input type="text" id="usename" />
+      </div>
+      <div>
+        <label htmlFor="profile">자기소개</label>
+        <textarea type="text" id="profile" />
+      </div>
+    </div>
+  );
+}
+
+test("input 요소가 있다.", () => {
+  render(<MyPage />);
+  const inputEl = screen.getByRole("textbox");
+  expect(inputEl).toBeInTheDocument();
+});
+-> textbox가 여러개 있다는 오류가 남 (input[text]와 textarea)
+해결:
+test("input 요소가 있다.", () => {
+  render(<MyPage />);
+  const inputEl = screen.getByRole("textbox", {
+    name: "자기소개",
+  });
+  expect(inputEl).toBeInTheDocument();
+});
+-> name을 주어 textbox를 찾음, <label htmlFor="profile">자기소개</label><textarea type="text" id="profile123" /> id와 for이 다를경우 오류
+
+또는
+
+test("input 요소가 있다.", () => {
+  render(<MyPage />);
+  const inputEl = screen.getByLabelText("자기소개");
+  expect(inputEl).toBeInTheDocument();
+});
+-> getByLabelText를 사용하여 찾기(label를 찾는게 아닌 연결된 textbox를 찾는거임)
+
+and
+
+function MyPage({ user }) {
+  return (
+    <div>
+      <div>
+        <label htmlFor="usename">자기소개</label>
+        <input type="text" id="usename" />
+      </div>
+      <div>
+        <label htmlFor="profile">자기소개</label>
+        <textarea type="text" id="profile" />
+      </div>
+    </div>
+  );
+}-> label의 이름이 똑같은 경우
+
+const inputEl = screen.getByLabelText("자기소개", {
+    selector: "textarea",
+}); -> slector로 찾을 수 있음
+
+and
+
+<input type="text" id="usename" value="Tom" readOnly />
+-> value값이 있을 경우
+
+test("input 요소가 있다.", () => {
+  render(<MyPage />);
+  const inputEl = screen.getByDisplayValue("Tom");
+  expect(inputEl).toBeInTheDocument();
+});
+->getByDisplayValue를 사용하여 찾을 수 있음
+
+and
+
+<div data-testid="my-div" />
+-> 요소를 찾을 수 없을 시 `data-testid="my-div"` 삽입
+
+test("mu-div가 있다.", () => {
+  render(<MyPage />);
+  const inputEl = screen.getByTestId("my-div");
+  expect(inputEl).toBeInTheDocument();
+});
+-> `getByTestId`로 접근 가능
 ```

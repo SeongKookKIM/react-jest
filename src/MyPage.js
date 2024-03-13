@@ -3,13 +3,15 @@ import React from "react";
 function MyPage({ user }) {
   return (
     <div>
-      {user && user.name ? (
-        <h1>{user.name}님 환영합니다.</h1>
-      ) : (
-        <h1>
-          로그인을 해주세요.<button>로그인</button>
-        </h1>
-      )}
+      <div>
+        <label htmlFor="usename">자기소개</label>
+        <input type="text" id="usename" value="Tom" readOnly />
+      </div>
+      <div data-testid="my-div" />
+      <div>
+        <label htmlFor="profile">자기소개</label>
+        <textarea type="text" id="profile" />
+      </div>
     </div>
   );
 }
