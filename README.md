@@ -406,3 +406,119 @@ test("mu-div가 있다.", () => {
 });
 -> `getByTestId`로 접근 가능
 ```
+
+#### 전체요소를 찾는 쿼리
+
+```js
+// UsetList.js
+import React, { useEffect, useState } from "react";
+
+export default function UserList({ users }) {
+  const [showTitle, setShowTitle] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowTitle(true);
+    }, 1500);
+  }, []);
+
+  return (
+    <>
+      {showTitle && <h1>사용자 목록</h1>}
+      <ul>
+        {users.map((user) => {
+          return <li key={user}>{user}</li>;
+        })}
+      </ul>
+    </>
+  );
+} -> 1.5초후 h1이 보임
+
+//UsetList.test.js
+
+describe("UserList test", () => {
+  const users = ["Tom", "Jane", "Mike"];
+
+  test("ul이 있다.", () => {
+    render(<UserList users={users} />);
+    const ulElement = screen.getByRole("list");
+    expect(ulElement).toBeInTheDocument();
+  });
+  -> getByRole을 사용하여 요소 찾기
+
+  test("li는 3개가 나옵니까?", () => {
+    render(<UserList users={[]} />);
+    // const liElement = screen.getAllByRole("listitem");
+    const liElement = screen.queryAllByRole("listitem");
+
+    expect(liElement).toHaveLength(0);
+    // expect(liElement).not.toBeInTheDocument();
+  });
+  ->getAllByRole 모든 요소 찾기(찾는 요소가 없을 시 오류)
+  ->queryAllByRole 모든요소 찾기(찾는 요소가 없을 경우 null,undefiled[] 빈 배열을 배출)
+
+  test("잠시 후 제목이 나타납니다.", async () => {
+    render(<UserList users={users} />);
+    // const titleEl = screen.getByRole("heading", { name: "사용자 목록" });
+    // expect(titleEl).toBeInTheDocument(); ->실패
+    // screen.debug();
+    const titleEl = await screen.findByRole(
+      "heading",
+      { name: "사용자 목록" },
+      { timeout: 2000 }
+    );
+    // screen.debug();
+    expect(titleEl).toBeInTheDocument();
+  });
+  ->findByRole 모든요소 찾기 (없을 경우 오류 getAllByRole와 일치)
+  ->`promise를 반환` defaultTime 은 1000ms
+  ->screen.debug() 사용시
+screen.debug() 예시:
+      <body>
+        <div>
+          <ul>
+            <li>
+              Tom
+            </li>
+            <li>
+              Jane
+            </li>
+            <li>
+              Mike
+            </li>
+          </ul>
+        </div>
+      </body>
+
+      and
+
+      <body>
+        <div>
+          <h1>
+          사용자 제목
+          </h1>
+          <ul>
+            <li>
+              Tom
+            </li>
+            <li>
+              Jane
+            </li>
+            <li>
+              Mike
+            </li>
+          </ul>
+        </div>
+      </body>
+이렇게 확인하여 볼 수 있음
+});
+```
+
+### 유저 이벤트 테스트
+
+- "@testing-library/user-event": "^13.2.1" 공식문에 따르면 13버전은 이제 지원하지않음
+- npm install @testing-library/user-event 14버전으로
+
+```js
+
+```
