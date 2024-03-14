@@ -518,7 +518,61 @@ screen.debug() 예시:
 
 - "@testing-library/user-event": "^13.2.1" 공식문에 따르면 13버전은 이제 지원하지않음
 - npm install @testing-library/user-event 14버전으로
+  [공식문서 링크](https://testing-library.com/docs/user-event/intro/)
 
 ```js
+//Login.js
+import React, { useState } from "react";
 
+function Login() {
+  const [isLogin, setIsLogin] = useState(false);
+
+  const handleOnClick = () => {
+    setIsLogin(!isLogin);
+  };
+
+  return (
+    <button type="button" onClick={handleOnClick}>
+      {isLogin ? "Logout" : "Login"}
+    </button>
+  );
+} -> 토글 버튼 클릭시 test가 변경
+
+//Login.test.js
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+->`import` 해주어야함
+
+import Login from "./Login";
+
+describe("Login Test", () => {
+  test("처음에 Login버튼이 있다.", () => {
+    render(<Login />);
+    const btnEl = screen.getByRole("button");
+    expect(btnEl).toHaveTextContent("Login");
+  });-> 처음랜더 시 텍스트가 Login인지 확인
+
+  const user = userEvent.setup();
+  ->`@testing-library/user-event`셋팅
+
+  test("클릭시 Logout이 된다.", async () => {
+    render(<Login />);
+    const btnEl = screen.getByRole("button");
+    await user.click(btnEl); //promise를 반환
+    expect(btnEl).toHaveTextContent("Logout");
+  });
+  ->`userEvent`는 `promise`를 반환한다.
+  ->클릭 시 텍스트가 Logout으로 변환되는지 확인
+
+  test("tab, space, enter 키보드 동작", async () => {
+    render(<Login />);
+    const btnEl = screen.getByRole("button");
+    await user.tab(); //promise를 반환
+    await user.keyboard(" "); //promise를 반환
+    await user.keyboard(" "); //promise를 반환
+    await user.keyboard("{Enter}"); //promise를 반환
+    expect(btnEl).toHaveTextContent("Logout");
+  });
+  ->키보드 이벤트 확인(spacebar는 ` ` 띄어스기를 한 번 해야함.)
+});
 ```

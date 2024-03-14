@@ -5,6 +5,7 @@ import "./App.css";
 import logo from "./logo.svg";
 import MyPage from "./MyPage";
 import UserList from "./UserList";
+import Login from "./Login";
 
 const user = {
   // name: "Mike",
@@ -17,6 +18,7 @@ function App() {
       {/* <Hello user={user} /> */}
       {/* <Timer /> */}
       {/* <MyPage user={{ name: "Kim" }} /> */}
+      <Login />
       <UserList users={["Tom", "Jane", "Mike"]} />
       <img src={logo} alt="logo" />
     </div>
