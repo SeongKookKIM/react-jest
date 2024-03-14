@@ -576,3 +576,150 @@ describe("Login Test", () => {
   ->키보드 이벤트 확인(spacebar는 ` ` 띄어스기를 한 번 해야함.)
 });
 ```
+
+### MSW를 활용한 mock API 테스트
+
+- [MSW 링크](https://mswjs.io/)
+
+```js
+* 프론트엔드 작업이 딜레이 되는 경우:
+  * API가 아직 안나옴
+  * 원하는 형태의 데이터가 아님
+  * 에러는 어떻게 발생 시켜야하나
+ex:
+*상품명이 10자 이상이면 어떻게 나올까?
+*판매중단 된 상품 && 성인만 열람할 수 있는 상품 목록
+*500 에러가 될 경우 화면을 보고 싶을떄
+```
+
+#### MSW 셋팅
+
+```js
+`src/mocks/server.js`;
+import { setupServer } from "msw/node";
+import { handlers } from "./handlers";
+
+export const server = setupServer(...handlers);
+
+`src/mocks/handlers.js`;
+import { rest } from "msw";
+
+export const handlers = [
+  rest.get("https://jsonplaceholder.typicode.com/todos", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json([
+        { id: 1, title: "청소", completed: true },
+        { id: 2, title: "설거지", completed: true },
+        { id: 3, title: "숙제", completed: true },
+      ])
+    );
+  }),
+];
+
+`setupTest.js`
+import server from "./mocks/server";
+
+beforeAll(() => {
+  // Start the interception.
+  server.listen();
+});
+
+afterEach(() => {
+  // Remove any handlers you may have added
+  // in individual tests (runtime handlers).
+  server.resetHandlers();
+});
+
+afterAll(() => {
+  // Disable request interception and clean up.
+  server.close();
+});
+
+**********************************
+##MSW node.js버전 호환성 문제로 @1.3.2 설치...
+```
+
+### Test
+
+```js
+//TodoList.js
+import React, { useEffect, useState } from "react";
+
+export default function TodoList() {
+  const [todoList, setTodoList] = useState([]);
+  const [errMsg, setErrMsg] = useState("");
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/todos")
+      .then((res) => res.json())
+      .then((json) => setTodoList(json))
+      .catch(() => {
+        setErrMsg("에러 발생...");
+      });
+  }, []);
+
+  return (
+    <>
+      <h1>Todo</h1>
+      {errMsg && <p>{errMsg}</p>}
+      <ul>
+        {todoList.map((todo) => {
+          return (
+            <li
+              key={todo.id}
+              style={{
+                textDecoration: todo.completed ? "line-through" : undefined,
+              }}
+            >
+              {todo.title}
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
+// TodoList.test.js
+import { render, screen } from "@testing-library/react";
+import TodoList from "./TodoList";
+
+describe("Todo List", () => {
+  test("Todo라는 제목이 있다", () => {
+    render(<TodoList />);
+    const titleEl = screen.getByText("Todo");
+    expect(titleEl).toBeInTheDocument();
+  });
+  -> //Pass
+
+  test("리스트가 잘 나온다.(3개)", async () => {
+    render(<TodoList />);
+    const list = await screen.findAllByRole("listitem");
+    expect(list).toHaveLength(3);
+  });
+});
+-> //Error 실제 호출한 api가 불러와짐 li갯수는 200개...
+->`msw@1.32` 설치 후 위에 `msw`셋팅 시 Pass
+
+//강제 에러
+import server from "../mocks/server";
+import { rest } from "msw";
+->server와 rest `import` 후
+
+  test("에러가 났을떄 에러 메세지를 보여줌.", async () => {
+    server.use(
+      rest.get(
+        "https://jsonplaceholder.typicode.com/todos",
+        (req, res, ctx) => {
+          return res(ctx.status(500));
+        }
+      )
+    );
+    render(<TodoList />);
+    const err = await screen.findByText("에러 발생...");
+    expect(err).toBeInTheDocument();
+  });
+->강제 에러 발생
+->순서가 바뀌어도 afterEach(() => {server.resetHandlers();}); 부분 떄문에 다음 test에 에러가 뜨지 않음
+
+```

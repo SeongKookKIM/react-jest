@@ -6,6 +6,7 @@ import logo from "./logo.svg";
 import MyPage from "./MyPage";
 import UserList from "./UserList";
 import Login from "./Login";
+import TodoList from "./components/TodoList";
 
 const user = {
   // name: "Mike",
@@ -18,6 +19,7 @@ function App() {
       {/* <Hello user={user} /> */}
       {/* <Timer /> */}
       {/* <MyPage user={{ name: "Kim" }} /> */}
+      <TodoList />
       <Login />
       <UserList users={["Tom", "Jane", "Mike"]} />
       <img src={logo} alt="logo" />
