@@ -5,7 +5,7 @@
 `설치`
 
 ```js
-npm i -D jest ts-jest @testing-library/react @testing-library/jest-dom @testing-library/user-event @babel/preset-react @babel/preset-typescript @babel/preset-env identity-obj-proxy
+npm i -D jest ts-jest @testing-library/react @testing-library/jest-dom @testing-library/user-event @babel/preset-react @babel/preset-typescript @babel/preset-env identity-obj-proxy jest-environment-jsdom jest-svg-transformer @types/jest
 
 - jest : 테스트 프레임워크
 - ts-jest : Jest에서 Typescript를 사용할 수 있게 해주는 도구
